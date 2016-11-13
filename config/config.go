@@ -32,6 +32,29 @@ func LoadConfigFile(configFile string) (*Config, error) {
 	return c, nil
 }
 
+//NewSampleYamlBytes will create a new sample config
+func NewSampleYamlBytes() ([]byte, error) {
+	cfg := &Config{
+		Projects: []*Project{
+			&Project{
+				YamlFile:   "$GOPATH/src/path/your/repo/.drone.yml",
+				Repository: "your/repo",
+				Secrets: []string{
+					"plugins/slack SLACK_WEBHOOK=https://hooks.slack.com/services/...",
+					"plugins/docker DOCKER_REGISTRY=...",
+					"plugins/slack,plugins/docker MY_SECRET=MY_VALUE",
+				},
+			},
+		},
+	}
+
+	b, err := yaml.Marshal(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot yaml.Marshal, error: %s", err.Error())
+	}
+	return b, nil
+}
+
 //Config holds the config
 type Config struct {
 	Projects []*Project

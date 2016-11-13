@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -21,8 +23,9 @@ var (
 )
 
 var (
-	configFlag = flag.String("config", "", "The path to the yaml config file")
-	logLevel   = flag.String("loglevel", "debug", "The log level - github.com/francoishill/log")
+	configFlag   = flag.String("config", "", "The path to the yaml config file")
+	logLevel     = flag.String("loglevel", "debug", "The log level - github.com/francoishill/log")
+	sampleConfig = flag.Bool("sampleconfig", false, "Prints a sample/default config to Stdout and exits")
 )
 
 func getLogger(logLevelString string) local_logger.Logger {
@@ -47,8 +50,23 @@ func getLogger(logLevelString string) local_logger.Logger {
 	return logging.NewApexLogger(level, logHandler, apexEntry, exitOnEmergency)
 }
 
+func printSampleConfig(writer io.Writer) error {
+	sampleCfgBytes, err := config.NewSampleYamlBytes()
+	if err != nil {
+		return err
+	}
+	_, err = writer.Write(sampleCfgBytes)
+	return err
+}
+
 func main() {
 	flag.Parse()
+	if *sampleConfig == true {
+		if err := printSampleConfig(os.Stdout); err != nil {
+			log.Fatal(err)
+		}
+		os.Exit(0)
+	}
 
 	logger := getLogger(*logLevel)
 	logger.Info(fmt.Sprintf("Version %s, GitSha1 '%s'", Version, GitSha1))
