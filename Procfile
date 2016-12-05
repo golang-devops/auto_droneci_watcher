@@ -1,0 +1,1 @@
+cli: go install ./... && go build -o $GOPATH\bin\auto_droneci_watcher.exe && auto_droneci_watcher.exe -config $UserProfile\.config\auto_droneci_watcher\config.yml -loglevel info
