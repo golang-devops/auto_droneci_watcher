@@ -65,7 +65,12 @@ func (c *Checker) executeProjectCommands(projectsWG *sync.WaitGroup, logger logg
 
 	logger.WithField("repository", project.Repository).Info("Executing commands of project")
 
-	var err error
+	logger.Info("Signing drone yaml")
+	if err := c.executeProjectDroneCmd(project, "sign", project.Repository); err != nil {
+		logger.WithError(err).Error("Unable to execute drone sign")
+	}
+
+	logger.Info("Adding secrets")
 	for _, secretLine := range project.Secrets {
 		secret, err := config.ParseSecretLine(secretLine)
 		if err != nil {
@@ -84,19 +89,11 @@ func (c *Checker) executeProjectCommands(projectsWG *sync.WaitGroup, logger logg
 		args = append(args, secret.Key)
 		args = append(args, secret.Value)
 
-		logger.WithField("secret-key", secret.Key).Debug("Adding secret")
-
-		err = c.executeProjectDroneCmd(project, args...)
-		if err != nil {
+		logger.WithField("secret-key", secret.Key).Info("Adding secret")
+		if err := c.executeProjectDroneCmd(project, args...); err != nil {
 			logger.WithError(err).Error("Unable to execute add secret")
 			continue
 		}
-	}
-
-	logger.Debug("Signing drone yaml")
-	err = c.executeProjectDroneCmd(project, "sign", project.Repository)
-	if err != nil {
-		logger.WithError(err).Error("Unable to execute drone sign")
 	}
 }
 
