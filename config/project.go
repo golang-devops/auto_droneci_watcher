@@ -2,9 +2,10 @@ package config
 
 //Project describes config around a single .drone.yml file
 type Project struct {
-	YamlFile   string `yaml:"yaml_file"`
-	Repository string
-	Secrets    []string // Parsed with ParseSecretLine
+	YamlFile               string `yaml:"yaml_file"`
+	Repository             string
+	SkipSecretVerification bool     `yaml:"skip_secret_verification"`
+	Secrets                []string // Parsed with ParseSecretLine
 }
 
 type ProjectSlice []*Project

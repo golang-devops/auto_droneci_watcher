@@ -74,6 +74,9 @@ func (c *Checker) executeProjectCommands(projectsWG *sync.WaitGroup, logger logg
 		}
 
 		args := []string{"secret", "add"}
+		if project.SkipSecretVerification {
+			args = append(args, "--skip-verify")
+		}
 		for _, image := range secret.Images {
 			args = append(args, "--image", image)
 		}
